@@ -1,0 +1,18 @@
+apiVersion: ebpf.exporter.k8s.aws/v1
+kind: BpfExporter
+metadata:
+  labels:
+    app.kubernetes.io/name: bpfexporter
+    app.kubernetes.io/instance: bpfexporter-sample
+    app.kubernetes.io/part-of: bpfexporter
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: bpfexporter
+  name: bpfexporter-sample
+spec:
+  kernelprobes:
+    - funcname: "oom_kill_process"
+      pods:
+        - podname: "hello-kubernetes"
+          podnamespace: "hello-kubernetes"
+        - podname: "test"
+          podnamespace: "test"    

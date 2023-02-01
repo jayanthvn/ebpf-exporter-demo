@@ -1,0 +1,33 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - ebpf.exporter.k8s.aws
+  resources:
+  - bpfexporters
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ebpf.exporter.k8s.aws
+  resources:
+  - bpfexporters/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - ebpf.exporter.k8s.aws
+  resources:
+  - bpfexporters/status
+  verbs:
+  - get
+  - patch
+  - update

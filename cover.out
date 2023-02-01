@@ -1,0 +1,18 @@
+mode: set
+bpfexporter/controllers/bpfexporter_controller.go:54.103,59.69 3 0
+bpfexporter/controllers/bpfexporter_controller.go:70.2,70.47 1 0
+bpfexporter/controllers/bpfexporter_controller.go:74.2,74.49 1 0
+bpfexporter/controllers/bpfexporter_controller.go:59.69,60.29 1 0
+bpfexporter/controllers/bpfexporter_controller.go:66.3,66.28 1 0
+bpfexporter/controllers/bpfexporter_controller.go:60.29,65.4 2 0
+bpfexporter/controllers/bpfexporter_controller.go:70.47,72.3 1 0
+bpfexporter/controllers/bpfexporter_controller.go:80.74,84.2 1 0
+bpfexporter/controllers/bpfexporter_controller.go:86.142,90.47 3 0
+bpfexporter/controllers/bpfexporter_controller.go:109.2,109.27 1 0
+bpfexporter/controllers/bpfexporter_controller.go:90.47,92.25 2 0
+bpfexporter/controllers/bpfexporter_controller.go:93.27,96.35 2 0
+bpfexporter/controllers/bpfexporter_controller.go:101.4,101.28 1 0
+bpfexporter/controllers/bpfexporter_controller.go:104.11,105.63 1 0
+bpfexporter/controllers/bpfexporter_controller.go:96.35,100.5 3 0
+bpfexporter/controllers/bpfexporter_controller.go:101.28,103.5 1 0
+bpfexporter/controllers/bpfexporter_controller.go:112.118,115.2 2 0
