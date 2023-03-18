@@ -58,6 +58,7 @@ RUN yum update -y && \
 WORKDIR /
 COPY --from=builder /workspace/manager .
 COPY --from=bpfbuilder /workspace/pkg/ebpf/c/oom_kill.elf .
+COPY --from=bpfbuilder /workspace/pkg/ebpf/c/conn_track.elf .
 #USER 65532:65532
 
 ENTRYPOINT ["/manager"]

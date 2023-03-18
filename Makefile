@@ -169,6 +169,7 @@ EBPF_BINARY := pkg/ebpf/c/xdp_fw.elf
 build-bpf: ## Build BPF
 	$(CLANG) $(CLANG_INCLUDE) -g -O2 -Wall -fpie -target bpf -DCORE -D__BPF_TRACING__ -D__TARGET_ARCH_$(ARCH) -march=bpf -c $(EBPF_SOURCE) -o $(EBPF_BINARY)
 	$(CLANG) $(CLANG_INCLUDE) -g -O2 -Wall -fpie -target bpf -DCORE -D__BPF_TRACING__ -D__TARGET_ARCH_x86 -march=bpf -c pkg/ebpf/c/oom_kill.c -o pkg/ebpf/c/oom_kill.elf
+	$(CLANG) $(CLANG_INCLUDE) -g -O2 -Wall -fpie -target bpf -DCORE -D__BPF_TRACING__ -D__TARGET_ARCH_x86 -march=bpf -c pkg/ebpf/c/conn_track.c -o pkg/ebpf/c/conn_track.elf
 
 # RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o manager main.go
 
