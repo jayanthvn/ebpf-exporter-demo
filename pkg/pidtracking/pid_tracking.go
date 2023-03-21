@@ -148,13 +148,7 @@ func (p *Program) startPerfEvents(events <-chan []byte, log logr.Logger) {
 				log.Info("Kprobe", "Got PID", ev.Pid)
 				log.Info("Kprobe", "Got PID type", ev.Type)
 				labels := make(map[string]string)
-				hostname, err := os.Hostname()
-				if err != nil {
-					log.Info("failed to get the host name")
-					labels["io.kubernetes.hostname"] = "dummyHostName"
-				} else {
-					labels["io.kubernetes.hostname"] = hostname
-				}
+				labels["io.kubernetes.hostname"] = os.Getenv("MY_NODE_NAME")
 				prometheusCount(labels, ev.Type, log)
 			} else {
 				break

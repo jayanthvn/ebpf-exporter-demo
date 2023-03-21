@@ -5,4 +5,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: 113910096515.dkr.ecr.us-west-2.amazonaws.com/cni-test
-  newTag: bpf-exporter-v116
+  newTag: bpf-exporter-v118
