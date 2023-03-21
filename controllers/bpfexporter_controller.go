@@ -30,7 +30,7 @@ import (
 	ebpfv1 "bpfexporter/api/v1"
 	//oom "bpfexporter/pkg/oomprobe"
 	pidtracking "bpfexporter/pkg/pidtracking"
-	conn "bpfexporter/pkg/streamconntrack"
+	//conn "bpfexporter/pkg/streamconntrack"
 )
 
 // BpfExporterReconciler reconciles a BpfExporter object
@@ -89,34 +89,36 @@ func (r *BpfExporterReconciler) CreateOrUpdateReconciler(ctx context.Context, re
 	r.Logger.Info("Got create or update")
 	//Get list of kernel probes and functions
 	bpfExporterSpec := cr.Spec
-	for _, probe := range bpfExporterSpec.Probes {
-		r.Logger.Info("Got policy", "Func name:", probe.FuncName)
-		switch probe.FuncName {
-		/*
-			case "oom_kill_process":
-			//Get all pods and namespace
-				podsToWatch := make(map[ebpfv1.PodNameNamespace]bool)
-				for _, pod := range probe.Pods {
-					r.Logger.Info("Got policy", "Pod name:", pod.PodName)
-					r.Logger.Info("Got policy", "Pod namespace:", pod.PodNamespace)
-					podsToWatch[pod] = true
-				}
-				if len(podsToWatch) > 0 {
-					oom.AttachOOMProbe(r.Logger)
-				}
-		*/
-		case "conn_track_stream":
-			//conn.AttachStreamProbe(r.Logger)
-			conn.AttachKprobegoBPF(r.Logger)
 
-		default:
-			r.Logger.Info("Not supported func name -- Implement it...")
-		}
+	/*
+		for _, probe := range bpfExporterSpec.Probes {
+			r.Logger.Info("Got policy", "Func name:", probe.FuncName)
+			switch probe.FuncName {
 
-	}
+				case "oom_kill_process":
+				//Get all pods and namespace
+					podsToWatch := make(map[ebpfv1.PodNameNamespace]bool)
+					for _, pod := range probe.Pods {
+						r.Logger.Info("Got policy", "Pod name:", pod.PodName)
+						r.Logger.Info("Got policy", "Pod namespace:", pod.PodNamespace)
+						podsToWatch[pod] = true
+					}
+					if len(podsToWatch) > 0 {
+						oom.AttachOOMProbe(r.Logger)
+					}
+
+			case "conn_track_stream":
+				//conn.AttachStreamProbe(r.Logger)
+				conn.AttachKprobegoBPF(r.Logger)
+
+			default:
+				r.Logger.Info("Not supported func name -- Implement it...")
+			}
+
+		}*/
 
 	for _, traceprobe := range bpfExporterSpec.TracePointProbes {
-		r.Logger.Info("Got policy", "Func name:", traceprobe.FuncName)
+		r.Logger.Info("Got TC policy", "Func name:", traceprobe.FuncName)
 		switch traceprobe.FuncName {
 		case "pid_usage":
 			pidtracking.AttachPidProbe(r.Logger)

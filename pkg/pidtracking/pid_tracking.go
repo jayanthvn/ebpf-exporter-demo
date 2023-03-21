@@ -22,7 +22,7 @@ import (
 var (
 	ErrProgramNotFound        = errors.New("program not found")
 	ErrMapNotFound            = errors.New("map not found")
-	kubernetesCounterVec      *prometheus.CounterVec
+	kubernetesCounterVec      *prometheus.GaugeVec
 	prometheusContainerLabels = map[string]string{
 		"io.kubernetes.hostname": "host_name",
 	}
@@ -70,11 +70,12 @@ func AttachPidProbe(log logr.Logger) {
 	}
 
 	// Start prometheus
+
 	var labels []string
 	for _, label := range prometheusContainerLabels {
 		labels = append(labels, strings.Replace(label, ".", "_", -1))
 	}
-	kubernetesCounterVec = prometheus.NewCounterVec(prometheus.CounterOpts{
+	kubernetesCounterVec = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "pid_usage",
 		Help: "pid usage per node",
 	}, labels)
@@ -163,7 +164,7 @@ func (p *Program) startPerfEvents(events <-chan []byte, log logr.Logger) {
 }
 
 func prometheusCount(containerLabels map[string]string, counterType uint32, log logr.Logger) {
-	var counter prometheus.Counter
+	var value prometheus.Gauge
 	var err error
 
 	var labels map[string]string
@@ -173,15 +174,15 @@ func prometheusCount(containerLabels map[string]string, counterType uint32, log 
 	}
 
 	log.Info("Prometheus", "Labels:", labels)
-	counter, err = kubernetesCounterVec.GetMetricWith(labels)
+	value, err = kubernetesCounterVec.GetMetricWith(labels)
 
 	if err != nil {
 		log.Error(err, "Prometheus getMetrics failed")
 	} else {
 		if counterType == PID_TID_CREATE {
-			counter.Add(1)
+			value.Inc()
 		} else if counterType == PID_TID_DELETE {
-			counter.Add(-1)
+			value.Dec()
 		}
 	}
 }
