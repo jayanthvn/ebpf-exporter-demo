@@ -58,6 +58,29 @@ spec:
                   - funcname
                   type: object
                 type: array
+              tracepointprobes:
+                description: A list of tracepoint probe specs.
+                items:
+                  properties:
+                    deployment:
+                      description: A list of deployment and deployment namespace.
+                      items:
+                        properties:
+                          deploymentname:
+                            description: Deployment which has to be probed.
+                            type: string
+                          deploymentnamespace:
+                            description: Deployment's namespace.
+                            type: string
+                        type: object
+                      type: array
+                    funcname:
+                      description: Function probe.
+                      type: string
+                  required:
+                  - funcname
+                  type: object
+                type: array
             type: object
           status:
             description: BpfExporterStatus defines the observed state of BpfExporter

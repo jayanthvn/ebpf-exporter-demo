@@ -86,6 +86,11 @@ spec:
             port: 8081
           initialDelaySeconds: 5
           periodSeconds: 10
+        env:
+          - name: MY_NODE_NAME
+            valueFrom:
+              fieldRef:
+                  fieldPath: spec.nodeName  
         # TODO(user): Configure the resources accordingly based on the project requirements.
         # More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
         resources:
@@ -98,15 +103,21 @@ spec:
         volumeMounts:
         - mountPath: /host/sys/fs/bpf
           name: bpffs
+        - mountPath: /sys/fs/bpf
+          name: bpffs  
         - mountPath: /sys/kernel/debug
           name: kerneldebug
         - mountPath: /var/run/dockershim.sock
           name: dockershim    
         - mountPath: /var/run/docker.sock
           name: docker
+        - mountPath: /var/log/aws-routed-eni
+          name: log-dir  
         ports:
         - name: metrics
           containerPort: 9102
+        - name: pidmetrics
+          containerPort: 9103
       serviceAccountName: controller-manager
       terminationGracePeriodSeconds: 10
       volumes:
@@ -126,3 +137,7 @@ spec:
           path: /var/run/docker.sock
           type: ""
         name: docker
+      - hostPath:
+          path: /var/log/aws-routed-eni
+          type: DirectoryOrCreate
+        name: log-dir  

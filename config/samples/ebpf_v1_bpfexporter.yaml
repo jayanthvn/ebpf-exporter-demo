@@ -9,11 +9,5 @@ metadata:
     app.kubernetes.io/created-by: bpfexporter
   name: bpfexporter-sample
 spec:
-  kernelprobes:
-    - funcname: "conn_track_stream"        
-    - funcname: "oom_kill_process"
-      pods:
-        - podname: "hello-kubernetes"
-          podnamespace: "hello-kubernetes"
-        - podname: "test"
-          podnamespace: "test"
+  tracepointprobes:
+    - funcname: "pid_usage"    

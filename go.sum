@@ -311,12 +311,6 @@ github.com/jayanthvn/pure-gobpf v0.0.0-20230317185509-7648cdb44947 h1:Yvtjx7w98O
 github.com/jayanthvn/pure-gobpf v0.0.0-20230317185509-7648cdb44947/go.mod h1:LiWsmci5sv0xzZEsxDs6/L8p3lSjajv6bfvpZf0cZJ8=
 github.com/jayanthvn/pure-gobpf v0.0.0-20230317194731-d513d92e34ea h1:jdiFQu3mLhC9DBoPip1A5hkmpBMVf4G2AjEhHX+TMOU=
 github.com/jayanthvn/pure-gobpf v0.0.0-20230317194731-d513d92e34ea/go.mod h1:LiWsmci5sv0xzZEsxDs6/L8p3lSjajv6bfvpZf0cZJ8=
-github.com/jayanthvn/pure-gobpf v0.0.0-20230320062308-4db266a3a85a h1:4curMCjTmvtfiE6Fi21zuX4orWJaoASC/FXqqlspV8g=
-github.com/jayanthvn/pure-gobpf v0.0.0-20230320062308-4db266a3a85a/go.mod h1:LiWsmci5sv0xzZEsxDs6/L8p3lSjajv6bfvpZf0cZJ8=
-github.com/jayanthvn/pure-gobpf v0.0.0-20230320192410-fa3ab479baac h1:f1npUlnvhY20P4RnnIWbwl5b6t9bccwEw4SKKQWF0Gc=
-github.com/jayanthvn/pure-gobpf v0.0.0-20230320192410-fa3ab479baac/go.mod h1:LiWsmci5sv0xzZEsxDs6/L8p3lSjajv6bfvpZf0cZJ8=
-github.com/jayanthvn/pure-gobpf v0.0.0-20230320202815-8a905c40225b h1:74hvmVzKrvJ6ZicDG1pPjl+LjdtVuf/4ZAG37lM1dSo=
-github.com/jayanthvn/pure-gobpf v0.0.0-20230320202815-8a905c40225b/go.mod h1:LiWsmci5sv0xzZEsxDs6/L8p3lSjajv6bfvpZf0cZJ8=
 github.com/jayanthvn/pure-gobpf v0.0.0-20230321003840-1c25f731b7f8 h1:aeQcnw/OIt12WS62eY2QJH48315vqd/wGsBU0CSEg+o=
 github.com/jayanthvn/pure-gobpf v0.0.0-20230321003840-1c25f731b7f8/go.mod h1:LiWsmci5sv0xzZEsxDs6/L8p3lSjajv6bfvpZf0cZJ8=
 github.com/jayanthvn/pure-gobpf v0.0.0-20230321005911-14c9c7f914eb h1:PfMeRbCNrq09rurabgZbIDjS5bKni27BZHiFO1vHENk=

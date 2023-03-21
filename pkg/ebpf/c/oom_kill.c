@@ -16,6 +16,17 @@ struct data_t {
 };
 
 struct bpf_map_def_pvt {
+	__u32 type;
+	__u32 key_size;
+	__u32 value_size;
+	__u32 max_entries;
+	__u32 map_flags;
+	__u32 pinning;
+	__u32 inner_map_fd;
+};
+
+/*
+struct bpf_map_def_pvt {
   __u32 map_type;
   __u32 key_size;
   __u32 value_size;
@@ -28,9 +39,10 @@ struct bpf_map_def_pvt {
   // WARN: You must have BPF filesystem mounted on provided location
   const char *persistent_path;
 };
+*/
 
 struct bpf_map_def_pvt SEC("maps") events = {
-    .map_type = BPF_MAP_TYPE_PERF_EVENT_ARRAY,
+    .type = BPF_MAP_TYPE_PERF_EVENT_ARRAY,
     .key_size = sizeof(__u32),
     .value_size = sizeof(struct data_t),
     .max_entries = 1024,
