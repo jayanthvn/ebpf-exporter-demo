@@ -1,6 +1,9 @@
 
 # Image URL to use all building/pushing image targets
-IMG ?= controller:latest
+IMAGE ?= amazon/aws-ebpf-exporter
+VERSION ?= $(shell git describe --tags --always --dirty || echo "unknown")
+IMAGE_NAME = $(IMAGE)$(IMAGE_ARCH_SUFFIX):$(VERSION)
+
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.25.0
 
@@ -17,9 +20,9 @@ SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
 export GO111MODULE = on
-export GOPROXY = direct
-export GOOS = linux
-export CGO_ENABLED = 1 
+#export GOPROXY = direct
+#export GOOS = linux
+export CGO_ENABLED = 1
 
 .PHONY: all
 all: build-bpf build
@@ -77,8 +80,8 @@ run: manifests generate fmt vet ## Run a controller from your host.
 # (i.e. docker build --platform linux/arm64 ). However, you must enable docker buildKit for it.
 # More info: https://docs.docker.com/develop/develop-images/build_enhancements/
 .PHONY: docker-build
-docker-build: test ## Build docker image with the manager.
-	docker build -t ${IMG} .
+docker-build: ## Build docker image with the manager.
+	docker build -t ${IMAGE_NAME} .
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
@@ -117,7 +120,7 @@ uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified 
 
 .PHONY: deploy
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMAGE_NAME}
 	$(KUSTOMIZE) build config/default | kubectl apply -f -
 
 .PHONY: undeploy
@@ -160,6 +163,9 @@ $(CONTROLLER_GEN): $(LOCALBIN)
 envtest: $(ENVTEST) ## Download envtest-setup locally if necessary.
 $(ENVTEST): $(LOCALBIN)
 	test -s $(LOCALBIN)/setup-envtest || GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
+
+ARCH := $(shell uname -m | sed 's/x86_64/amd64/g; s/aarch64/arm64/g')
+BPF_VCPU = v2
 
 # Build BPF
 CLANG := clang

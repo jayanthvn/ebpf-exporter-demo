@@ -6,7 +6,7 @@ require (
 	docker.io/go-docker v1.0.0
 	github.com/dropbox/goebpf v0.0.0-20220926213112-398a646c8fc1
 	github.com/go-logr/logr v1.2.3
-	github.com/jayanthvn/pure-gobpf v0.0.0-20230317194731-d513d92e34ea
+	github.com/jayanthvn/pure-gobpf v0.0.0-20230321025459-f3f0925f3116
 	github.com/onsi/ginkgo/v2 v2.7.0
 	github.com/onsi/gomega v1.26.0
 	github.com/prometheus/client_golang v1.12.2
