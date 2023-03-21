@@ -31,6 +31,9 @@ type BpfExporterSpec struct {
 	// +kubebuilder:validation:Optional
 	// A list of kernel probe specs.
 	Probes []ProbeSpec `json:"kernelprobes"`
+	// +kubebuilder:validation:Optional
+	// A list of tracepoint probe specs.
+	TracePointProbes []TracepointProbeSpec `json:"tracepointprobes"`
 }
 
 type ProbeSpec struct {
@@ -49,6 +52,24 @@ type PodNameNamespace struct {
 	// +kubebuilder:validation:Optional
 	// Pod's namespace.
 	PodNamespace string `json:"podnamespace"`
+}
+
+type TracepointProbeSpec struct {
+	// Function probe.
+	FuncName string `json:"funcname"`
+
+	// +kubebuilder:validation:Optional
+	// A list of deployment and deployment namespace.
+	Deployment []DeploymentNameNamespace `json:"deployment"`
+}
+
+type DeploymentNameNamespace struct {
+	// +kubebuilder:validation:Optional
+	// Deployment which has to be probed.
+	DeploymentName string `json:"deploymentname"`
+	// +kubebuilder:validation:Optional
+	// Deployment's namespace.
+	DeploymentNamespace string `json:"deploymentnamespace"`
 }
 
 // BpfExporterStatus defines the observed state of BpfExporter

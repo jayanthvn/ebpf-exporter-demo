@@ -151,27 +151,7 @@ func (p *Program) startPerfEvents(events <-chan []byte, log logr.Logger) {
 		pidRE := regexp.MustCompile(pidPattern)
 
 		for {
-			//Write dummy log - REMOVE this
-			test_labels := make(map[string]string)
-			test_labels["io.kubernetes.pod.name"] = "test"
-			test_labels["io.kubernetes.pod.namespace"] = "test"
-			test_labels["io.kubernetes.container.name"] = "test"
-
-			if len(test_labels) == 3 {
-				prometheusCount(test_labels, log)
-			}
-
 			if b, ok := <-events; ok {
-
-				//Write dummy log - REMOVE this
-				test_labels := make(map[string]string)
-				test_labels["io.kubernetes.pod.name"] = "test"
-				test_labels["io.kubernetes.pod.namespace"] = "test"
-				test_labels["io.kubernetes.container.name"] = "test"
-
-				if len(test_labels) == 3 {
-					prometheusCount(test_labels, log)
-				}
 
 				var ev Event_t
 				buf := bytes.NewBuffer(b)

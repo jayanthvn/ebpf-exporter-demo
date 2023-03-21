@@ -98,12 +98,16 @@ spec:
         volumeMounts:
         - mountPath: /host/sys/fs/bpf
           name: bpffs
+        - mountPath: /sys/fs/bpf
+          name: bpffs  
         - mountPath: /sys/kernel/debug
           name: kerneldebug
         - mountPath: /var/run/dockershim.sock
           name: dockershim    
         - mountPath: /var/run/docker.sock
           name: docker
+        - mountPath: /var/log/aws-routed-eni
+          name: log-dir  
         ports:
         - name: metrics
           containerPort: 9102
@@ -126,3 +130,7 @@ spec:
           path: /var/run/docker.sock
           type: ""
         name: docker
+      - hostPath:
+          path: /var/log/aws-routed-eni
+          type: DirectoryOrCreate
+        name: log-dir  

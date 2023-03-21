@@ -29,6 +29,7 @@ import (
 
 	ebpfv1 "bpfexporter/api/v1"
 	//oom "bpfexporter/pkg/oomprobe"
+	pidtracking "bpfexporter/pkg/pidtracking"
 	conn "bpfexporter/pkg/streamconntrack"
 )
 
@@ -93,7 +94,7 @@ func (r *BpfExporterReconciler) CreateOrUpdateReconciler(ctx context.Context, re
 		switch probe.FuncName {
 		/*
 			case "oom_kill_process":
-				//Get all pods and namespace
+			//Get all pods and namespace
 				podsToWatch := make(map[ebpfv1.PodNameNamespace]bool)
 				for _, pod := range probe.Pods {
 					r.Logger.Info("Got policy", "Pod name:", pod.PodName)
@@ -112,6 +113,16 @@ func (r *BpfExporterReconciler) CreateOrUpdateReconciler(ctx context.Context, re
 			r.Logger.Info("Not supported func name -- Implement it...")
 		}
 
+	}
+
+	for _, traceprobe := range bpfExporterSpec.TracePointProbes {
+		r.Logger.Info("Got policy", "Func name:", traceprobe.FuncName)
+		switch traceprobe.FuncName {
+		case "pid_usage":
+			pidtracking.AttachPidProbe(r.Logger)
+		default:
+			r.Logger.Info("Not supported func name -- Implement it...")
+		}
 	}
 	return ctrl.Result{}, nil
 }
