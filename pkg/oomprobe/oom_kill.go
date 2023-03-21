@@ -16,8 +16,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dropbox/goebpf"
 	"github.com/go-logr/logr"
+	awsgoebpf "github.com/jayanthvn/pure-gobpf/pkg/ebpf"
+	awsperfcgo "github.com/jayanthvn/pure-gobpf/pkg/ebpf_perf_cgo"
+	goebpfelfparser "github.com/jayanthvn/pure-gobpf/pkg/elfparser"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
@@ -50,9 +52,9 @@ type Event_t struct {
 }
 
 type Program struct {
-	bpf goebpf.System
-	pe  *goebpf.PerfEvents
-	wg  sync.WaitGroup
+	bpfParser *goebpfelfparser.BPFParser
+	pe        *awsperfcgo.PerfEvents
+	wg        sync.WaitGroup
 }
 
 type DmesgLog struct {
@@ -62,23 +64,31 @@ type DmesgLog struct {
 }
 
 func AttachOOMProbe(log logr.Logger) {
-
-	log.Info("Starting bpf exporter")
-	if err := goebpf.CleanupProbes(); err != nil {
-		log.Error(err, "Failed so cleanup probes")
-	}
-
-	p, err := LoadProgram("/oom_kill.elf")
+	var bpfParser *goebpfelfparser.BPFParser
+	bpfParser, err := goebpfelfparser.LoadBpfFile("/oom_kill.elf")
 	if err != nil {
-		log.Error(err, "LoadProgram() failed")
+		log.Info("Kprobe", "LoadElf() failed: ", err)
 	}
-	//p.ShowInfo(log)
 
-	if err := p.AttachProbes(log); err != nil {
-		log.Error(err, "AttachProbes() failed")
+	p := Program{bpfParser: bpfParser}
+
+	for _, pgmData := range bpfParser.ElfContext.Section["kprobe"].Programs {
+		//log.Info("Kprobe","Kprobe -> PgmName %s : ProgFD %d PinPath %s ProgType %s ProgSubType %s", pgmName, pgmData.ProgFD, pgmData.PinPath, pgmData.ProgType, pgmData.SubProgType)
+		funcName := pgmData.SubProgType
+		eventName := funcName + "__goebpf"
+		log.Info("kprobe", "prog FD ", pgmData.ProgFD)
+		log.Info("kprobe", "Func name ", funcName)
+		log.Info("kprobe", "eventName", eventName)
+		err := awsgoebpf.KprobeAttach(pgmData.ProgFD, eventName, funcName)
+		if err != nil {
+			log.Info("Kprobe", "Failed to attach kprobe ", err)
+			err := awsgoebpf.KprobeDetach(eventName)
+			if err != nil {
+				log.Info("Cleaned up kprobes")
+			}
+		}
+
 	}
-	defer p.DetachProbes()
-
 	// Start prometheus
 	var labels []string
 	for _, label := range prometheusContainerLabels {
@@ -97,6 +107,22 @@ func AttachOOMProbe(log logr.Logger) {
 		http.ListenAndServe(metricsAddr, nil)
 	}()
 
+	if mapToUpdate, ok := bpfParser.ElfContext.Maps["events"]; ok {
+		var err error
+		p.pe, err = awsperfcgo.NewPerfEvents(int(mapToUpdate.MapFD), bpfParser.BpfMapAPIs)
+		if err != nil {
+			return
+		}
+		events, err := p.pe.StartForAllProcessesAndCPUs(4096)
+		if err != nil {
+			return
+		}
+
+		// start event listeners
+		p.wg = sync.WaitGroup{}
+		p.startPerfEvents(events, log)
+
+	}
 	// wait until Ctrl+C pressed
 	ctrlC := make(chan os.Signal, 1)
 	signal.Notify(ctrlC, os.Interrupt)
@@ -104,23 +130,6 @@ func AttachOOMProbe(log logr.Logger) {
 
 	log.Info("Kprobe", "Event(s) Received", p.pe.EventsReceived)
 	log.Info("Kprobe", "Event(s) lost (e.g. small buffer, delays in processing)", p.pe.EventsLost)
-}
-
-func LoadProgram(filename string) (*Program, error) {
-
-	bpf := goebpf.NewDefaultEbpfSystem()
-
-	if err := bpf.LoadElf(filename); err != nil {
-		return nil, err
-	}
-
-	for _, prog := range bpf.GetPrograms() {
-		if err := prog.Load(); err != nil {
-			return nil, err
-		}
-	}
-
-	return &Program{bpf: bpf}, nil
 }
 
 func (p *Program) startPerfEvents(events <-chan []byte, log logr.Logger) {
@@ -142,8 +151,27 @@ func (p *Program) startPerfEvents(events <-chan []byte, log logr.Logger) {
 		pidRE := regexp.MustCompile(pidPattern)
 
 		for {
+			//Write dummy log - REMOVE this
+			test_labels := make(map[string]string)
+			test_labels["io.kubernetes.pod.name"] = "test"
+			test_labels["io.kubernetes.pod.namespace"] = "test"
+			test_labels["io.kubernetes.container.name"] = "test"
+
+			if len(test_labels) == 3 {
+				prometheusCount(test_labels, log)
+			}
 
 			if b, ok := <-events; ok {
+
+				//Write dummy log - REMOVE this
+				test_labels := make(map[string]string)
+				test_labels["io.kubernetes.pod.name"] = "test"
+				test_labels["io.kubernetes.pod.namespace"] = "test"
+				test_labels["io.kubernetes.container.name"] = "test"
+
+				if len(test_labels) == 3 {
+					prometheusCount(test_labels, log)
+				}
 
 				var ev Event_t
 				buf := bytes.NewBuffer(b)
@@ -170,8 +198,8 @@ func (p *Program) startPerfEvents(events <-chan []byte, log logr.Logger) {
 
 				log.Info("Kprobe", "Got OOM kill called from process PID", ev.FPid)
 				log.Info("Kprobe", "Got OOM kill for process PID", ev.TPid)
-				log.Info("Kprobe", "FCOMM", goebpf.NullTerminatedStringToString(ev.FComm[:]))
-				log.Info("Kprobe", "TCOMM", goebpf.NullTerminatedStringToString(ev.TComm[:]))
+				log.Info("Kprobe", "FCOMM", goebpfelfparser.NullTerminatedStringToString(ev.FComm[:]))
+				log.Info("Kprobe", "TCOMM", goebpfelfparser.NullTerminatedStringToString(ev.TComm[:]))
 
 				//Sleep for few seconds for logs to be present in dmesg
 				time.Sleep(2 * time.Second)
@@ -275,62 +303,3 @@ func getContainer(containerID string, cli *docker_client.Client) (docker_types.C
 	return container, nil
 
 }
-
-func (p *Program) stopPerfEvents() {
-	p.pe.Stop()
-	p.wg.Wait()
-}
-
-func (p *Program) AttachProbes(log logr.Logger) error {
-
-	for _, prog := range p.bpf.GetPrograms() {
-		if err := prog.Attach(nil); err != nil {
-			return err
-		}
-	}
-
-	m := p.bpf.GetMapByName("events")
-	if m == nil {
-		return ErrMapNotFound
-	}
-
-	var err error
-	p.pe, err = goebpf.NewPerfEvents(m)
-	if err != nil {
-		return err
-	}
-	events, err := p.pe.StartForAllProcessesAndCPUs(4096)
-	if err != nil {
-		return err
-	}
-
-	p.wg = sync.WaitGroup{}
-	p.startPerfEvents(events, log)
-
-	return nil
-}
-
-func (p *Program) DetachProbes() error {
-	p.stopPerfEvents()
-	for _, prog := range p.bpf.GetPrograms() {
-		prog.Detach()
-		prog.Close()
-	}
-	return nil
-}
-
-/*
-func (p *Program) ShowInfo(log logr.Logger) {
-	log.Info("Maps:")
-	for _, item := range p.bpf.GetMaps() {
-		m := item.(*goebpf.EbpfMap)
-		log.Infof("\t%s: %v, Fd %v\n", m.Name, m.Type, m.GetFd())
-	}
-	log.Infof("Programs:")
-	for _, prog := range p.bpf.GetPrograms() {
-		log.Infof("\t%s: %v (%s), size %d, license \"%s\"\n",
-			prog.GetName(), prog.GetType(), prog.GetSection(), prog.GetSize(), prog.GetLicense(),
-		)
-	}
-}
-*/

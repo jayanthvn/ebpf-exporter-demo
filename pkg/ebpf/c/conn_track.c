@@ -123,6 +123,13 @@ int conn_insert(struct pt_regs *ctx) {
 	return 0;
 }
 
+SEC("tracepoint/sched/sched_process_fork")
+int sched_process_fork(struct pt_regs *ctx) {
+  __u32 evt_test = 30;
+  __u64 flags = BPF_F_CURRENT_CPU;
+  bpf_perf_event_output(ctx, &events_conn, flags, &evt_test, sizeof(evt_test)); 
+    return 0;
+}
 /*
 SEC("kprobe/nf_ct_delete")
 int conn_del(struct pt_regs *ctx) {
