@@ -83,7 +83,7 @@ func AttachPidProbe(log logr.Logger) {
 
 	go func() {
 		log.Info("TC: pid start/end Starting prometheus metrics")
-		http.Handle("/metrics", promhttp.Handler())
+		http.Handle("/pidmetrics", promhttp.Handler())
 		http.ListenAndServe(metricsAddr, nil)
 	}()
 

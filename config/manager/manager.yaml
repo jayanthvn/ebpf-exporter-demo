@@ -111,6 +111,8 @@ spec:
         ports:
         - name: metrics
           containerPort: 9102
+        - name: pidmetrics
+          containerPort: 9103
       serviceAccountName: controller-manager
       terminationGracePeriodSeconds: 10
       volumes:
