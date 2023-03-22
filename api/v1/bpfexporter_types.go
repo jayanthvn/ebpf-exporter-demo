@@ -34,6 +34,9 @@ type BpfExporterSpec struct {
 	// +kubebuilder:validation:Optional
 	// A list of tracepoint probe specs.
 	TracePointProbes []TracepointProbeSpec `json:"tracepointprobes"`
+	// +kubebuilder:validation:Optional
+	// A list of tracepoint probe specs.
+	InterfaceProbes []InterfaceProbeSpec `json:"interfaceprobes"`
 }
 
 type ProbeSpec struct {
@@ -70,6 +73,14 @@ type DeploymentNameNamespace struct {
 	// +kubebuilder:validation:Optional
 	// Deployment's namespace.
 	DeploymentNamespace string `json:"deploymentnamespace"`
+}
+
+type InterfaceProbeSpec struct {
+	// Function probe.
+	FuncName string `json:"funcname"`
+
+	// +kubebuilder:validation:Optional
+	Interface string `json:"interface"`
 }
 
 // BpfExporterStatus defines the observed state of BpfExporter

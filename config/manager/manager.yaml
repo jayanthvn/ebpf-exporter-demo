@@ -118,6 +118,9 @@ spec:
           containerPort: 9102
         - name: pidmetrics
           containerPort: 9103
+        - name: dnsmetrics
+          containerPort: 9104
+      hostNetwork: true    
       serviceAccountName: controller-manager
       terminationGracePeriodSeconds: 10
       volumes:

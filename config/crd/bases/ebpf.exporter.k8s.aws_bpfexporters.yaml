@@ -35,6 +35,19 @@ spec:
           spec:
             description: BpfExporterSpec defines the desired state of BpfExporter
             properties:
+              interfaceprobes:
+                description: A list of tracepoint probe specs.
+                items:
+                  properties:
+                    funcname:
+                      description: Function probe.
+                      type: string
+                    interface:
+                      type: string
+                  required:
+                  - funcname
+                  type: object
+                type: array
               kernelprobes:
                 description: A list of kernel probe specs.
                 items:

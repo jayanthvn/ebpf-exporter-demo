@@ -29,8 +29,9 @@ import (
 
 	ebpfv1 "bpfexporter/api/v1"
 	//oom "bpfexporter/pkg/oomprobe"
-	pidtracking "bpfexporter/pkg/pidtracking"
+	//pidtracking "bpfexporter/pkg/pidtracking"
 	//conn "bpfexporter/pkg/streamconntrack"
+	dnsthrottling "bpfexporter/pkg/dnsthrottling"
 )
 
 // BpfExporterReconciler reconciles a BpfExporter object
@@ -116,7 +117,7 @@ func (r *BpfExporterReconciler) CreateOrUpdateReconciler(ctx context.Context, re
 			}
 
 		}*/
-
+	/*		
 	for _, traceprobe := range bpfExporterSpec.TracePointProbes {
 		r.Logger.Info("Got TC policy", "Func name:", traceprobe.FuncName)
 		switch traceprobe.FuncName {
@@ -126,6 +127,16 @@ func (r *BpfExporterReconciler) CreateOrUpdateReconciler(ctx context.Context, re
 			r.Logger.Info("Not supported func name -- Implement it...")
 		}
 	}
+	*/
+	for _, interfaceprobe := range bpfExporterSpec.InterfaceProbes {
+		r.Logger.Info("Got interface policy", "Func name:", interfaceprobe.FuncName)
+		switch interfaceprobe.FuncName {
+		case "capture_dns_throttle":
+			dnsthrottling.CaptureDNSlimits(r.Logger)
+		default:
+			r.Logger.Info("Not supported func name -- Implement it...")
+		}
+	}	
 	return ctrl.Result{}, nil
 }
 

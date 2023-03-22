@@ -9,5 +9,5 @@ metadata:
     app.kubernetes.io/created-by: bpfexporter
   name: bpfexporter-sample
 spec:
-  tracepointprobes:
-    - funcname: "pid_usage"    
+  interfaceprobes:
+    - funcname: "capture_dns_throttle"  

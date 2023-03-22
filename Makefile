@@ -177,6 +177,7 @@ build-bpf: ## Build BPF
 	$(CLANG) $(CLANG_INCLUDE) -g -O2 -Wall -fpie -target bpf -DCORE -D__BPF_TRACING__ -D__TARGET_ARCH_x86 -march=bpf -c pkg/ebpf/c/oom_kill.c -o pkg/ebpf/c/oom_kill.elf
 	$(CLANG) $(CLANG_INCLUDE) -g -O2 -Wall -fpie -target bpf -DCORE -D__BPF_TRACING__ -D__TARGET_ARCH_x86 -march=bpf -c pkg/ebpf/c/conn_track.c -o pkg/ebpf/c/conn_track.elf
 	$(CLANG) $(CLANG_INCLUDE) -g -O2 -Wall -fpie -target bpf -DCORE -D__BPF_TRACING__ -D__TARGET_ARCH_x86 -march=bpf -c pkg/ebpf/c/pid_tracking.c -o pkg/ebpf/c/pid_tracking.elf
+	$(CLANG) $(CLANG_INCLUDE) -g -O2 -Wall -fpie -target bpf -DCORE -D__BPF_TRACING__ -D__TARGET_ARCH_x86 -march=bpf -c pkg/ebpf/c/dns_throttle.c -o pkg/ebpf/c/dns_throttle.elf
 
 # RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o manager main.go
 
