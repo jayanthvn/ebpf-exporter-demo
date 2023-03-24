@@ -35,48 +35,12 @@ spec:
           spec:
             description: BpfExporterSpec defines the desired state of BpfExporter
             properties:
-              interfaceprobes:
-                description: A list of tracepoint probe specs.
-                items:
-                  properties:
-                    funcname:
-                      description: Function probe.
-                      type: string
-                    interface:
-                      type: string
-                  required:
-                  - funcname
-                  type: object
-                type: array
-              kernelprobes:
+              probes:
                 description: A list of kernel probe specs.
                 items:
                   properties:
-                    funcname:
-                      description: Function probe.
-                      type: string
-                    pods:
-                      description: A list of pods and pods namespace.
-                      items:
-                        properties:
-                          podname:
-                            description: Pod which has to be probed.
-                            type: string
-                          podnamespace:
-                            description: Pod's namespace.
-                            type: string
-                        type: object
-                      type: array
-                  required:
-                  - funcname
-                  type: object
-                type: array
-              tracepointprobes:
-                description: A list of tracepoint probe specs.
-                items:
-                  properties:
                     deployment:
-                      description: A list of deployment and deployment namespace.
+                      description: A list of pods and pods namespace.
                       items:
                         properties:
                           deploymentname:
@@ -87,11 +51,13 @@ spec:
                             type: string
                         type: object
                       type: array
-                    funcname:
+                    interface:
+                      type: string
+                    probeName:
                       description: Function probe.
                       type: string
                   required:
-                  - funcname
+                  - probeName
                   type: object
                 type: array
             type: object

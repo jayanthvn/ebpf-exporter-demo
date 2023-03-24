@@ -30,57 +30,28 @@ type BpfExporterSpec struct {
 
 	// +kubebuilder:validation:Optional
 	// A list of kernel probe specs.
-	Probes []ProbeSpec `json:"kernelprobes"`
-	// +kubebuilder:validation:Optional
-	// A list of tracepoint probe specs.
-	TracePointProbes []TracepointProbeSpec `json:"tracepointprobes"`
-	// +kubebuilder:validation:Optional
-	// A list of tracepoint probe specs.
-	InterfaceProbes []InterfaceProbeSpec `json:"interfaceprobes"`
+	Probes []ProbeSpec `json:"probes"`
 }
 
 type ProbeSpec struct {
 	// Function probe.
-	FuncName string `json:"funcname"`
+	ProbeName string `json:"probeName"`
 
 	// +kubebuilder:validation:Optional
 	// A list of pods and pods namespace.
-	Pods []PodNameNamespace `json:"pods"`
-}
-
-type PodNameNamespace struct {
-	// +kubebuilder:validation:Optional
-	// Pod which has to be probed.
-	PodName string `json:"podname"`
-	// +kubebuilder:validation:Optional
-	// Pod's namespace.
-	PodNamespace string `json:"podnamespace"`
-}
-
-type TracepointProbeSpec struct {
-	// Function probe.
-	FuncName string `json:"funcname"`
+	Deployment []DeploymentInfo `json:"deployment"`
 
 	// +kubebuilder:validation:Optional
-	// A list of deployment and deployment namespace.
-	Deployment []DeploymentNameNamespace `json:"deployment"`
+	Interface string `json:"interface"`
 }
 
-type DeploymentNameNamespace struct {
+type DeploymentInfo struct {
 	// +kubebuilder:validation:Optional
 	// Deployment which has to be probed.
 	DeploymentName string `json:"deploymentname"`
 	// +kubebuilder:validation:Optional
 	// Deployment's namespace.
 	DeploymentNamespace string `json:"deploymentnamespace"`
-}
-
-type InterfaceProbeSpec struct {
-	// Function probe.
-	FuncName string `json:"funcname"`
-
-	// +kubebuilder:validation:Optional
-	Interface string `json:"interface"`
 }
 
 // BpfExporterStatus defines the observed state of BpfExporter

@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"sync"
-	"strconv"
 
 	"github.com/go-logr/logr"
 	awsgoebpf "github.com/jayanthvn/pure-gobpf/pkg/ebpf"
@@ -26,18 +26,18 @@ var (
 	kubernetesCounterVec      *prometheus.GaugeVec
 	prometheusContainerLabels = map[string]string{
 		"io.kubernetes.hostname": "host_name",
-		"interfacename": "interface_name",
+		"interfacename":          "interface_name",
 	}
 	metricsAddr string
 )
 
 func init() {
 
-	flag.StringVar(&metricsAddr, "listen-address", ":9104", "The address to listen on for HTTP requests.")
+	flag.StringVar(&metricsAddr, "dns-listen-address", ":9104", "The address to listen on for HTTP requests.")
 }
 
 type Event_t struct {
-	Interface  uint32
+	Interface uint32
 }
 
 type Program struct {
@@ -56,7 +56,6 @@ func CaptureDNSlimits(log logr.Logger) {
 	p := Program{bpfParser: bpfParser}
 	interfaceName := "eth0"
 	for _, pgmData := range bpfParser.ElfContext.Section["tc_cls"].Programs {
-
 
 		err := awsgoebpf.TCEgressAttach(interfaceName, pgmData.ProgFD)
 		if err != nil {
@@ -143,7 +142,7 @@ func (p *Program) startPerfEvents(events <-chan []byte, log logr.Logger) {
 				log.Info("Kprobe", "DNS event", ev.Interface)
 				labels := make(map[string]string)
 				labels["io.kubernetes.hostname"] = os.Getenv("MY_NODE_NAME")
-				labels["interfacename"] =  strconv.FormatUint(uint64(ev.Interface), 10)
+				labels["interfacename"] = strconv.FormatUint(uint64(ev.Interface), 10)
 				prometheusCount(labels, log)
 			} else {
 				break
@@ -167,6 +166,6 @@ func prometheusCount(containerLabels map[string]string, log logr.Logger) {
 	if err != nil {
 		log.Error(err, "Prometheus getMetrics failed")
 	} else {
-			value.Inc()
+		value.Inc()
 	}
 }

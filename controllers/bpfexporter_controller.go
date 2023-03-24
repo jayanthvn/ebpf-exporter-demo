@@ -19,19 +19,16 @@ package controllers
 import (
 	"context"
 
+	ebpfv1 "bpfexporter/api/v1"
+	"bpfexporter/pkg/dnsthrottling"
+	oom "bpfexporter/pkg/oomprobe"
+	"bpfexporter/pkg/pidtracking"
+	conn "bpfexporter/pkg/streamconntrack"
 	"github.com/go-logr/logr"
-	errors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-	reconcile "sigs.k8s.io/controller-runtime/pkg/reconcile"
-
-	ebpfv1 "bpfexporter/api/v1"
-	//oom "bpfexporter/pkg/oomprobe"
-	//pidtracking "bpfexporter/pkg/pidtracking"
-	//conn "bpfexporter/pkg/streamconntrack"
-	dnsthrottling "bpfexporter/pkg/dnsthrottling"
 )
 
 // BpfExporterReconciler reconciles a BpfExporter object
@@ -57,26 +54,14 @@ type BpfExporterReconciler struct {
 func (r *BpfExporterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
-	// TODO(user): your logic here
-	cr := &ebpfv1.BpfExporter{}
-	if err := r.K8sClient.Get(ctx, req.NamespacedName, cr); err != nil {
-		if errors.IsNotFound(err) {
-			// Request object not found, could have been deleted
-			// return and don't requeue
-			r.Logger.Info("unable to get policy", "resource", cr, "err", err)
-			return reconcile.Result{}, nil
-		}
-		return ctrl.Result{}, err
-	}
-
-	// Check if the resource is being deleted
-	if !cr.ObjectMeta.DeletionTimestamp.IsZero() {
-		return r.DeletionReconciler(ctx, cr)
-	}
 	// The resource is being created or updated
-	return r.CreateOrUpdateReconciler(ctx, req, cr)
+	if err := r.reconcile(ctx, req); err != nil {
+		r.Logger.Info("Reconcile error, requeueing", "err", err)
+		return ctrl.Result{Requeue: true}, nil
+	}
 
-	//return ctrl.Result{}, nil
+	return ctrl.Result{}, nil
+	//return runtime.HandleReconcileError(r.reconcile(req), r.log) //TODO
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -86,61 +71,53 @@ func (r *BpfExporterReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (r *BpfExporterReconciler) CreateOrUpdateReconciler(ctx context.Context, req ctrl.Request, cr *ebpfv1.BpfExporter) (ctrl.Result, error) {
-	r.Logger.Info("Got create or update")
+func (r *BpfExporterReconciler) reconcile(ctx context.Context, req ctrl.Request) error {
+	bpfExporter := &ebpfv1.BpfExporter{}
+	if err := r.K8sClient.Get(ctx, req.NamespacedName, bpfExporter); err != nil {
+		if isNotFoundErr := client.IgnoreNotFound(err); isNotFoundErr == nil {
+			return r.DeletionReconciler(ctx, bpfExporter)
+		}
+		return err
+	}
+
 	//Get list of kernel probes and functions
-	bpfExporterSpec := cr.Spec
+	bpfExporterSpec := bpfExporter.Spec
 
-	/*
-		for _, probe := range bpfExporterSpec.Probes {
-			r.Logger.Info("Got policy", "Func name:", probe.FuncName)
-			switch probe.FuncName {
-
-				case "oom_kill_process":
-				//Get all pods and namespace
-					podsToWatch := make(map[ebpfv1.PodNameNamespace]bool)
-					for _, pod := range probe.Pods {
-						r.Logger.Info("Got policy", "Pod name:", pod.PodName)
-						r.Logger.Info("Got policy", "Pod namespace:", pod.PodNamespace)
-						podsToWatch[pod] = true
-					}
-					if len(podsToWatch) > 0 {
-						oom.AttachOOMProbe(r.Logger)
-					}
-
-			case "conn_track_stream":
-				//conn.AttachStreamProbe(r.Logger)
-				conn.AttachKprobegoBPF(r.Logger)
-
-			default:
-				r.Logger.Info("Not supported func name -- Implement it...")
+	for _, probe := range bpfExporterSpec.Probes {
+		r.Logger.Info("Reconciling BPF Exported Policy for", "Probe name:", probe.ProbeName)
+		switch probe.ProbeName {
+		case "oom_kill_process":
+			//Get all pods and namespace
+			podsToWatch := make(map[ebpfv1.DeploymentInfo]bool)
+			for _, pod := range probe.Deployment {
+				r.Logger.Info("Got policy", "Pod name:", pod.DeploymentName)
+				r.Logger.Info("Got policy", "Pod namespace:", pod.DeploymentNamespace)
+				podsToWatch[pod] = true
+			}
+			if len(podsToWatch) > 0 {
+				oom.AttachOOMProbe(r.Logger)
 			}
 
-		}*/
-	/*		
-	for _, traceprobe := range bpfExporterSpec.TracePointProbes {
-		r.Logger.Info("Got TC policy", "Func name:", traceprobe.FuncName)
-		switch traceprobe.FuncName {
+		case "conn_track_stream":
+			//conn.AttachStreamProbe(r.Logger)
+			conn.AttachKprobegoBPF(r.Logger)
+
 		case "pid_usage":
 			pidtracking.AttachPidProbe(r.Logger)
-		default:
-			r.Logger.Info("Not supported func name -- Implement it...")
-		}
-	}
-	*/
-	for _, interfaceprobe := range bpfExporterSpec.InterfaceProbes {
-		r.Logger.Info("Got interface policy", "Func name:", interfaceprobe.FuncName)
-		switch interfaceprobe.FuncName {
+
 		case "capture_dns_throttle":
 			dnsthrottling.CaptureDNSlimits(r.Logger)
+
 		default:
-			r.Logger.Info("Not supported func name -- Implement it...")
+			r.Logger.Info("Invalid Probe Name...!!")
 		}
-	}	
-	return ctrl.Result{}, nil
+
+	}
+
+	return nil
 }
 
-func (r *BpfExporterReconciler) DeletionReconciler(ctx context.Context, cr *ebpfv1.BpfExporter) (ctrl.Result, error) {
+func (r *BpfExporterReconciler) DeletionReconciler(ctx context.Context, cr *ebpfv1.BpfExporter) error {
 	r.Logger.Info("Got delete")
-	return ctrl.Result{}, nil
+	return nil
 }

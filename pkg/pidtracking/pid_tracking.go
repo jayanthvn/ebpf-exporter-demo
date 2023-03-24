@@ -36,7 +36,7 @@ const (
 
 func init() {
 
-	flag.StringVar(&metricsAddr, "listen-address", ":9103", "The address to listen on for HTTP requests.")
+	flag.StringVar(&metricsAddr, "pid-listen-address", ":9103", "The address to listen on for HTTP requests.")
 }
 
 type Event_t struct {

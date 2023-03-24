@@ -319,6 +319,8 @@ github.com/jayanthvn/pure-gobpf v0.0.0-20230321025459-f3f0925f3116 h1:UdBPwkr5ZI
 github.com/jayanthvn/pure-gobpf v0.0.0-20230321025459-f3f0925f3116/go.mod h1:LiWsmci5sv0xzZEsxDs6/L8p3lSjajv6bfvpZf0cZJ8=
 github.com/jayanthvn/pure-gobpf v0.0.0-20230321223053-7bd3fc7e20b3 h1:4dlgzQ1EQhbQxV22Myma4dfoJmxOUcHh5O0YSLiW7sI=
 github.com/jayanthvn/pure-gobpf v0.0.0-20230321223053-7bd3fc7e20b3/go.mod h1:LiWsmci5sv0xzZEsxDs6/L8p3lSjajv6bfvpZf0cZJ8=
+github.com/jayanthvn/pure-gobpf v0.0.0-20230323203835-3d51d470a4f4 h1:H4UnQ+EoPhUDTE+TaQ4Ns77/xBRjpZYLnLXeEPONG3k=
+github.com/jayanthvn/pure-gobpf v0.0.0-20230323203835-3d51d470a4f4/go.mod h1:LiWsmci5sv0xzZEsxDs6/L8p3lSjajv6bfvpZf0cZJ8=
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/josharian/intern v1.0.0 h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY=
 github.com/josharian/intern v1.0.0/go.mod h1:5DoeVV0s6jJacbCEi61lwdGj/aVlrQvzHFFd8Hwg//Y=

@@ -41,7 +41,7 @@ var (
 
 func init() {
 
-	flag.StringVar(&metricsAddr, "listen-address", ":9102", "The address to listen on for HTTP requests.")
+	flag.StringVar(&metricsAddr, "oom-listen-address", ":9102", "The address to listen on for HTTP requests.")
 }
 
 type Event_t struct {
